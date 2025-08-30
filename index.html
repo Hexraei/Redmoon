@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REDMOON - Great T-Shirts at Fair Prices</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Lato:wght@300;400&family=Outfit:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-noir: #0d0d0d;
+            --crimson-accent: #8B0000;
+            --warm-cream: #FBF8F3;
+            --soft-gray: #888888;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --dark-gold: #b2946c;
+        }
+
+        /* NEW: Added class to prevent scrolling when mobile menu is open */
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: var(--deep-noir);
+            color: var(--warm-cream);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Navigation & Hamburger Menu Styles --- */
+        nav {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 25px 50px;
+            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .nav-logo { opacity: 0; transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1002; }
+        .nav-logo img { height: 40px; }
+        .nav-logo.visible { opacity: 1; transform: translateY(0); }
+        .nav-menu { display: flex; gap: 40px; align-items: center; }
+        .nav-link { font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-cream); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
+        .nav-link:hover { opacity: 1; }
+
+        /* MODIFIED: Hamburger Icon Styling & Transform Animation */
+        .hamburger { display: none; cursor: pointer; z-index: 1002; flex-direction: column; gap: 5px; background: none; border: none; }
+        .hamburger .bar { width: 25px; height: 2px; background-color: var(--warm-cream); transition: transform 0.3s ease, opacity 0.3s ease; transform-origin: center; }
+        .hamburger.active .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active .bar:nth-child(2) { opacity: 0; }
+        .hamburger.active .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        
+        /* NEW: Full-screen Overlay for Mobile Menu */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
+        
+        /* MODIFIED: Mobile menu centered on overlay */
+        .mobile-nav-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            transform: translate(-50%, -50%);
+        }
+        .mobile-nav-menu .nav-link { font-size: 20px; opacity: 0.9; }
+
+        /* --- Hero Section Styles --- */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; position: relative; text-align: center; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, var(--crimson-accent) 0%, transparent 70%); opacity: 0.05; pointer-events: none; }
+        /* MODIFIED: Reverted Hero Title to simpler version */
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(80px, 12vw, 180px);
+            font-weight: 500; /* Normal thickness */
+            letter-spacing: -10px; /* Decreased spacing */
+            margin-bottom: 30px;
+            opacity: 0;
+            color: var(--warm-cream); /* Ensured color is white */
+            transform: translateY(30px);
+            animation: fadeInUp 1.2s ease forwards;
+            animation-delay: 0.3s;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hero-title.scrolled { opacity: 0; transform: translateY(-30px) scale(0.3); }
+        .hero-tagline { font-family: 'Lato', sans-serif; font-size: 20px; font-weight: 300; letter-spacing: 3px; opacity: 0; transform: translateY(20px); animation: fadeInUp 1.2s ease forwards; animation-delay: 0.6s; color: var(--soft-gray); max-width: 600px; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Collection & Roller Styles --- */
+        .collection { padding: 120px 0; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; gap: 40px; } /* Added gap between carousels */
+        .section-title { font-family: 'EB Garamond', serif; font-size: 40px; font-weight: 400; letter-spacing: 4px; text-align: center; margin-bottom: 80px; opacity: 0.9; }
+        .roller-wrapper { position: relative; width: 100%; height: 320px; /* Reduced height */ mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
+        .roller-container { display: flex; position: absolute; left: 0; }
+        .roller-wrapper:hover .roller-container { animation-play-state: paused; }
+
+        /* Top Carousel Animation */
+        #roller-top { animation: scroll-desktop 80s linear infinite; }
+        @keyframes scroll-desktop { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-240px * 25)); } } /* Using new card size */
+        
+        /* NEW: Bottom Carousel Animation (Reverse) */
+        #roller-bottom { animation: scroll-reverse-desktop 80s linear infinite; }
+        @keyframes scroll-reverse-desktop { 0% { transform: translateX(calc(-240px * 25)); } 100% { transform: translateX(0); } }
+        
+        /* MODIFIED: Smaller product cards and hover fix */
+        .tshirt-card {
+            flex: 0 0 220px; /* Reduced card width */
+            height: 293px; /* Adjusted height for 3:4 aspect ratio */
+            margin: 0 10px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden; /* This prevents any child elements (like the image) from showing outside the card boundaries */
+            background: var(--deep-noir); /* Set background to avoid any flicker */
+        }
+        .tshirt-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+        .tshirt-card:hover img { transform: scale(1.05); }
+        .tshirt-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; text-align: center; }
+        .tshirt-card:hover .tshirt-overlay { opacity: 1; }
+        .tshirt-price { font-family: 'EB Garamond', serif; font-size: 28px; margin-bottom: 15px; }
+        .tshirt-price::before { content: '₹'; font-size: 24px; margin-right: 4px; opacity: 0.7; }
+        .buy-now-btn { font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--deep-noir); background: var(--warm-cream); border: none; padding: 12px 20px; cursor: pointer; transition: all 0.4s ease; }
+        .buy-now-btn:hover { background: var(--dark-gold); color: var(--warm-cream); }
+
+        /* Other sections... */
+        .philosophy, .brand-section, .testimonials, .contact, .explore-section { padding: 100px 50px; }
+        .philosophy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 60px; justify-content: center; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .philosophy-item { padding: 20px; opacity: 0; }
+        .philosophy-icon { font-size: 3.5rem; color: var(--dark-gold); margin-bottom: 25px; display: inline-block; }
+        .philosophy-icon svg { width: 50px; height: 50px; }
+        .philosophy-title { font-family: 'EB Garamond', serif; font-size: 24px; font-weight: 500; margin-bottom: 15px; color: var(--warm-cream); }
+        .philosophy-text { font-family: 'Lato', sans-serif; font-size: 17px; line-height: 1.7; font-weight: 300; color: var(--soft-gray); }
+        .explore-section { text-align: center; padding: 80px 0; }
+        .explore-btn { font-family: 'Lato', sans-serif; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: var(--warm-cream); background: transparent; border: 1px solid var(--border-light); padding: 15px 30px; cursor: pointer; transition: all 0.4s ease; text-decoration: none; }
+        .explore-btn:hover { background: var(--dark-gold); color: var(--warm-cream); border-color: var(--dark-gold); }
+        .brand-section { background: linear-gradient(180deg, var(--deep-noir) 0%, rgba(139, 0, 0, 0.03) 50%, var(--deep-noir) 100%); }
+        .brand-content { max-width: 800px; margin: 0 auto; text-align: center; }
+        /* MODIFIED: Ensured brand title is not bold */
+        .brand-title { font-family: 'EB Garamond', serif; font-size: 40px; font-weight: 400; letter-spacing: 4px; margin-bottom: 50px; opacity: 0.9; }
+        .brand-text { font-family: 'Lato', sans-serif; font-size: 19px; line-height: 1.8; color: var(--soft-gray); margin-bottom: 40px; }
+        .brand-highlight { color: var(--warm-cream); font-style: italic; font-weight: 400; }
+        .testimonials { text-align: center; border-top: 1px solid var(--border-light); }
+        .testimonial-card { max-width: 700px; margin: 0 auto; }
+        .testimonial-text { font-family: 'EB Garamond', serif; font-size: 26px; font-style: italic; line-height: 1.7; color: var(--soft-gray); margin-bottom: 30px; }
+        .testimonial-author { font-family: 'Lato', sans-serif; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: var(--dark-gold); }
+        .contact { text-align: center; border-top: 1px solid var(--border-light); }
+        .contact-title { font-family: 'EB Garamond', serif; font-size: 20px; letter-spacing: 3px; margin-bottom: 20px; opacity: 0.7; }
+        .contact-info { font-family: 'Lato', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--soft-gray); text-decoration: none; transition: color 0.3s ease; }
+        .contact-info:hover { color: var(--warm-cream); }
+        footer { padding: 40px 30px; text-align: center; font-size: 11px; letter-spacing: 2px; opacity: 0.5; border-top: 1px solid var(--border-light); font-family: 'Lato', sans-serif; }
+        footer img { height: 70px; margin-bottom: 20px; }
+
+        /* --- Responsive Styles (Mobile) --- */
+        @media (max-width: 768px) {
+            nav { padding: 20px 30px; }
+            .nav-menu { display: none; }
+            .hamburger { display: flex; }
+
+            .hero-title { font-size: clamp(45px, 15vw, 65px); letter-spacing: 2px; }
+            .hero-tagline { font-size: 16px; max-width: 90%; }
+            
+            .collection { gap: 20px; }
+            .roller-wrapper { height: 250px; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+            #roller-top { animation-name: scroll-mobile; }
+            #roller-bottom { animation-name: scroll-reverse-mobile; }
+            @keyframes scroll-mobile { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-170px * 25)); } }
+            @keyframes scroll-reverse-mobile { 0% { transform: translateX(calc(-170px * 25)); } 100% { transform: translateX(0); } }
+
+            .tshirt-card { flex-basis: 150px; height: 200px; }
+            .tshirt-price { font-size: 24px; margin-bottom: 10px; }
+            .buy-now-btn { padding: 8px 14px; font-size: 10px; }
+            
+            /* MODIFIED: Increased padding for more whitespace and reduced font sizes */
+            .collection, .philosophy, .brand-section, .testimonials, .contact, .explore-section { padding: 80px 30px; }
+            .section-title { font-size: 28px; margin-bottom: 60px; }
+            .philosophy-grid { gap: 30px; }
+            .brand-title { font-size: 28px; }
+            .brand-text, .philosophy-text, .testimonial-text { font-size: 16px; line-height: 1.8; }
+            .testimonial-text { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" id="navLogo">
+                <a href="#"><img src="redmoon_logo.png" alt="REDMOON Logo"></a>
+            </div>
+            <div class="nav-menu">
+                <a href="#collection" class="nav-link">Collection</a>
+                <a href="#brand" class="nav-link">Our Promise</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Open menu">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Overlay & Menu -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay">
+        <div class="mobile-nav-menu" id="mobileNavMenu">
+            <a href="#collection" class="nav-link">Collection</a>
+            <a href="#brand" class="nav-link">Our Promise</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title" id="heroTitle">REDMOON</h1>
+        <p class="hero-tagline">Timeless Style, Modern Price.</p>
+    </section>
+    
+    <!-- Philosophy Section -->
+    <section class="philosophy" id="philosophy">
+        <div class="philosophy-grid">
+            <div class="philosophy-item">
+                <div class="philosophy-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                </div>
+                <h3 class="philosophy-title">Built to Last</h3>
+                <p class="philosophy-text">We use high-quality fabrics so our clothes feel amazing and hold up, wash after wash.</p>
+            </div>
+            <div class="philosophy-item">
+                <div class="philosophy-icon">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15.5" x2="9" y2="7"></line></svg>
+                </div>
+                <h3 class="philosophy-title">Simple Style</h3>
+                <p class="philosophy-text">Our designs are modern and clean, making them easy to mix and match with what you already own.</p>
+            </div>
+            <div class="philosophy-item">
+                 <div class="philosophy-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                 </div>
+                <h3 class="philosophy-title">Fair Prices</h3>
+                <p class="philosophy-text">You get top-quality clothing without the big price tag. We sell directly to you to keep prices honest.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Collection Section -->
+    <section class="collection" id="collection">
+        <h2 class="section-title">Our Collection</h2>
+        <!-- Top Carousel (1-25) -->
+        <div class="roller-wrapper">
+            <div class="roller-container" id="roller-top"></div>
+        </div>
+        <!-- Bottom Carousel (25-1) -->
+        <div class="roller-wrapper">
+            <div class="roller-container" id="roller-bottom"></div>
+        </div>
+    </section>
+
+    <!-- Explore Our Collection Button -->
+    <section class="explore-section">
+        <a href="#" class="explore-btn">Explore our Collection</a>
+    </section>
+
+    <!-- Brand Section -->
+    <section class="brand-section" id="brand">
+        <div class="brand-content">
+            <h2 class="brand-title">Our Promise</h2>
+            <p class="brand-text">
+                We believe you shouldn't have to overpay for great clothes. At Redmoon, we focus on making high-quality, comfortable t-shirts and apparel that you'll want to wear every day. We keep our styles clean and our prices fair. <span class="brand-highlight">Great clothes at a fair price</span> — that's our promise to you.
+            </p>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+         <h2 class="section-title">What Our Customers Say</h2>
+         <div class="testimonial-card">
+             <p class="testimonial-text">"Honestly, the quality is amazing for the price. I bought a few t-shirts and now I wear them all the time. Redmoon is my new favorite brand."</p>
+             <div class="testimonial-author">- Mark T.</div>
+         </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="contact-title">Get in Touch</div>
+        <a href="mailto:contact@redmoon.com" class="contact-info">contact@redmoon.com</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <img src="redmoon_logo.png" alt="REDMOON Logo">
+        <p>© 2025 REDMOON. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rollerTop = document.getElementById('roller-top');
+            const rollerBottom = document.getElementById('roller-bottom');
+
+            // --- Generate Top Carousel (1 -> 25) ---
+            if (rollerTop) {
+                let rollerHTML = '';
+                for (let i = 1; i <= 25; i++) {
+                    const price = Math.floor(Math.random() * (600 - 400 + 1)) + 400;
+                    rollerHTML += `<div class="tshirt-card"><img src="shirts/shirt${i}.jpeg" alt="T-Shirt Design ${i}"><div class="tshirt-overlay"><div class="tshirt-price">${price}</div><button class="buy-now-btn">Buy Now</button></div></div>`;
+                }
+                rollerTop.innerHTML = rollerHTML + rollerHTML; // Duplicate for seamless loop
+            }
+
+            // --- Generate Bottom Carousel (25 -> 1) ---
+            if (rollerBottom) {
+                let rollerHTML = '';
+                for (let i = 25; i >= 1; i--) {
+                    const price = Math.floor(Math.random() * (600 - 400 + 1)) + 400;
+                    rollerHTML += `<div class="tshirt-card"><img src="shirts/shirt${i}.jpeg" alt="T-Shirt Design ${i}"><div class="tshirt-overlay"><div class="tshirt-price">${price}</div><button class="buy-now-btn">Buy Now</button></div></div>`;
+                }
+                rollerBottom.innerHTML = rollerHTML + rollerHTML; // Duplicate for seamless loop
+            }
+
+            // --- Hamburger Menu Logic ---
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const body = document.body;
+
+            const toggleMenu = () => {
+                hamburger.classList.toggle('active');
+                mobileMenuOverlay.classList.toggle('open');
+                body.classList.toggle('no-scroll');
+            };
+
+            hamburger.addEventListener('click', toggleMenu);
+            // Close menu if a link is clicked
+            mobileMenuOverlay.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', toggleMenu);
+            });
+            // Close menu if the overlay itself is clicked
+            mobileMenuOverlay.addEventListener('click', (e) => {
+                if (e.target === mobileMenuOverlay) {
+                    toggleMenu();
+                }
+            });
+
+
+            // --- Scroll-based Animations ---
+            const navbar = document.getElementById('navbar');
+            const navLogo = document.getElementById('navLogo');
+            const heroTitle = document.getElementById('heroTitle');
+            function handleScroll() { /* ... unchanged ... */ }
+            window.addEventListener('scroll', handleScroll);
+
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+            const observer = new IntersectionObserver((entries, observer) => { /* ... unchanged ... */ });
+            document.querySelectorAll('.brand-content, .philosophy-item, .testimonial-card').forEach(el => { /* ... unchanged ... */ });
+
+            // --- Smooth Scroll Logic ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
